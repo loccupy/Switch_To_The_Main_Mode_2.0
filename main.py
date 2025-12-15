@@ -37,7 +37,7 @@ class FileUploader(QWidget):
 
     def initUI(self):
         current_dir = os.path.dirname(__file__)
-        ui_path = os.path.join(current_dir, 'libs', 'maket.ui')
+        ui_path = os.path.join(current_dir, 'libs', 'maket_clbr.ui')
 
         uic.loadUi(ui_path, self)
 
@@ -48,6 +48,9 @@ class FileUploader(QWidget):
 
         self.start = self.findChild(QPushButton, 'start_button')
         self.start.clicked.connect(self.start_command)
+
+        self.start = self.findChild(QPushButton, 'start_button_2')
+        self.start.clicked.connect(self.start_command_2)
 
         self.text_edit = self.findChild(QTextEdit, 'textEdit')
         self.text_edit.setStyleSheet(
@@ -80,6 +83,36 @@ class FileUploader(QWidget):
             elif type == '3PH':
                 print('Выбранный тип счетчика >> 3PH')
                 instrument.write_register(registeraddress=239, value=170)
+            self.update_text("УСПЕХ!", "green")
+            print()
+            self.update_text("Перезапустите счетчик!", "green")
+        except Exception as e:
+            self.update_text(f"Ошибка {e}.", "red")
+            print()
+            self.update_text(f"Проверьте настройки.", "red")
+
+    def start_command_2(self):
+        self.text_edit.clear()
+        if not self.number_com.text().strip():
+            # Показываем предупреждение
+            QMessageBox.warning(
+                self,
+                "Предупреждение",
+                "Введите COM соединения!",
+                QMessageBox.Ok
+            )
+            return
+
+        com = self.number_com.text()
+        type = self.type.currentText()
+        try:
+            instrument, meter_type = config(com)
+            if type == '1PH':
+                print('Выбранный тип счетчика >> 1PH')
+                instrument.write_register(registeraddress=147, value=85)
+            elif type == '3PH':
+                print('Выбранный тип счетчика >> 3PH')
+                instrument.write_register(registeraddress=239, value=85)
             self.update_text("УСПЕХ!", "green")
             print()
             self.update_text("Перезапустите счетчик!", "green")
